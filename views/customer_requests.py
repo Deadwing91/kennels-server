@@ -2,7 +2,7 @@ CUSTOMERS = [
     {
         "id": 1,
         "name": "Ryan Tanay",
-        "city": "Nashville"
+        "email": "ryan.t@gmail.com"
     }
 ]
 

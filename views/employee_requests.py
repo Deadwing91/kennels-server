@@ -2,7 +2,8 @@ EMPLOYEES = [
     {
         "id": 1,
         "name": "Jenna Solis",
-        "position": "Sales Manager"
+        "address": "123 Fake St.",
+        "locationId": 3
     }
 ]
 

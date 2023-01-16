@@ -2,14 +2,12 @@ LOCATIONS = [
     {
         "id": 1,
         "name": "Nashville North",
-        "address": "8422 Johnson Pike",
-        "building": "1"
+        "address": "8422 Johnson Pike"
     },
     {
         "id": 2,
         "name": "Nashville South",
-        "address": "209 Emory Drive",
-        "building": "2"
+        "address": "209 Emory Drive"
     }
 ]
 def create_location(location):

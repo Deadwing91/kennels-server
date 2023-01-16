@@ -69,8 +69,16 @@ class HandleRequests(BaseHTTPRequestHandler):
             if id is not None:
                 response = get_single_animal(id)
 
+                if response is not None:
+                    self._set_headers(200)
+
+                else:
+                    self._set_headers(404)
+                    response = {"message": f"Animal {id} is out of office"}
+
             else:
                 response = get_all_animals()
+
         elif resource == "locations":
             if id is not None:
                 response = get_single_location(id)
@@ -97,7 +105,9 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         #else:
             #response = []
-
+        else:
+            self._set_headers(404)
+            response = ""
     # Send a JSON formatted string as a response
         self.wfile.write(json.dumps(response).encode())
 
@@ -124,16 +134,44 @@ class HandleRequests(BaseHTTPRequestHandler):
         # the orange squiggle, you'll define the create_animal
         # function next.
         if resource == "animals":
-            new_response = create_animal(post_body)
+            if "name" in post_body and "species" in post_body and "locationId" in post_body and "customerId" in post_body and "status" in post_body:
+                self._set_headers(201)
+                new_response = create_animal(post_body)
+            else:
+                self._set_headers(400)
+                new_response = {
+                    "message": f'{"name is required" if "name" not in post_body else ""} {"species is required" if "species" not in post_body else ""} {"locationId is required" if "locationId" not in post_body else ""} {"customerId is required" if "customerId" not in post_body else ""} {"status is required" if "status" not in post_body else ""}'
+                        }
 
         elif resource == "locations":
-            new_response = create_location(post_body)
+            if "full_name" in post_body and "email" in post_body:
+                self._set_headers(201)
+                new_response = create_customer(post_body)
+            else:
+                self._set_headers(400)
+                new_response = {
+                    "message": f'{"full_name is required" if "full_name" not in post_body else ""} {"email is required" if "email" not in post_body else ""}'
+                        }
 
         elif resource == "employees":
-            new_response = create_employee(post_body)
+            if "name" in post_body and "address" in post_body and "locationId" in post_body:
+                self._set_headers(201)
+                new_response = create_employee(post_body)
+            else:
+                self._set_headers(400)
+                new_response = {
+                    "message": f'{"name is required" if "name" not in post_body else ""} {"address is required" if "address" not in post_body else ""} {"locationId is required" if "locationId" not in post_body else ""}'
+                        }
 
         elif resource == "customers":
-            new_response = create_customer(post_body)
+            if "name" in post_body and "address" in post_body:
+                self._set_headers(201)
+                new_response = create_location(post_body)
+            else:
+                self._set_headers(400)
+                new_response = {
+                    "message": f'{"name is required" if "name" not in post_body else ""} {"address is required" if "address" not in post_body else ""}'
+                        }
 
         # Encode the new animal and send in response
         self.wfile.write(json.dumps(new_response).encode())
@@ -180,15 +218,19 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     # Delete a single animal from the list
         if resource == "animals":
+            self._set_headers(204)
             delete_animal(id)
 
         elif resource == "locations":
+            self._set_headers(204)
             delete_location(id)
 
         elif resource == "employees":
+            self._set_headers(204)
             delete_employee(id)
 
         elif resource == "customers":
+            self._set_headers(405)
             delete_customer(id)
 
     # Encode the new animal and send in response
