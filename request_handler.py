@@ -59,12 +59,12 @@ class HandleRequests(BaseHTTPRequestHandler):
         """Handles GET requests to the server
         """
         # Set the response code to 'Ok'
-        self._set_headers(200)
+
         response = {}  # Default response
         # Parse the URL and capture the tuple that is returned
         (resource, id) = self.parse_url(self.path)
         # Your new console.log() that outputs to the terminal
-        print(self.path)
+
         if resource == "animals":
             if id is not None:
                 response = get_single_animal(id)
@@ -77,27 +77,44 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = {"message": f"Animal {id} is out of office"}
 
             else:
+                self._set_headers(200)
                 response = get_all_animals()
 
         elif resource == "locations":
             if id is not None:
                 response = get_single_location(id)
 
+                if response is not None:
+                    self._set_headers(200)
+
             else:
+                self._set_headers(200)
                 response = get_all_locations()
 
         elif resource == "customers":
             if id is not None:
                 response = get_single_customer(id)
 
+                if response is not None:
+                    self._set_headers(200)
+
+                else:
+                    self._set_headers(404)
+                    response = {"message": f"Customer {id} is out of office"}
+
             else:
+                self._set_headers(200)
                 response = get_all_customers()
 
         elif resource == "employees":
             if id is not None:
                 response = get_single_employee(id)
 
+                if response is not None:
+                    self._set_headers(200)
+
             else:
+                self._set_headers(200)
                 response = get_all_employees()
         # It's an if..else statement
         #if self.path == "/animals":
@@ -105,9 +122,9 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         #else:
             #response = []
-        else:
-            self._set_headers(404)
-            response = ""
+        #else:
+            #self._set_headers(404)
+            #response = ""
     # Send a JSON formatted string as a response
         self.wfile.write(json.dumps(response).encode())
 
