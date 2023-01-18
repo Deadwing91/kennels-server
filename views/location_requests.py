@@ -6,12 +6,14 @@ LOCATIONS = [
     {
         "id": 1,
         "name": "Nashville North",
-        "address": "8422 Johnson Pike"
+        "address": "8422 Johnson Pike",
+        "location_id": 1
     },
     {
         "id": 2,
         "name": "Nashville South",
-        "address": "209 Emory Drive"
+        "address": "209 Emory Drive",
+        "location_id": 2
     }
 ]
 def create_location(location):
@@ -72,7 +74,8 @@ def get_all_locations():
         SELECT
             a.id,
             a.name,
-            a.address
+            a.address,
+            a.location_id
         FROM location a
         """)
 
@@ -89,7 +92,7 @@ def get_all_locations():
             # Note that the database fields are specified in
             # exact order of the parameters defined in the
             # Animal class above.
-            location = Location(row['id'], row['name'], row['address'])
+            location = Location(row['id'], row['name'], row['address'], row['location_id'])
 
             locations.append(location.__dict__)
 
@@ -107,7 +110,8 @@ def get_single_location(id):
         SELECT
             a.id,
             a.name,
-            a.address
+            a.address,
+            a.location_id
         FROM location a
         WHERE a.id = ?
         """, ( id, ))
@@ -116,6 +120,7 @@ def get_single_location(id):
         data = db_cursor.fetchone()
 
         # Create an animal instance from the current row
-        location = Location(data['id'], data['name'], data['address'])
+        location = Location(data['id'], data['name'], data['address'], data['location_id'])
 
         return location.__dict__
+    
