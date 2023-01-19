@@ -67,6 +67,11 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = get_single_customer(id)
                 else:
                     response = get_all_customers()
+            elif resource == "employees":
+                if id is not None:
+                    response = get_single_employee(id)
+                else:
+                    response = get_all_employees()
 
         else: # There is a ? in the path, run the query param functions
             (resource, query) = parsed
@@ -153,19 +158,18 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     # A method that handles any PUT request.
     def do_PUT(self):
-        """_summary_
-        """
-        self._set_headers(204)
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
         post_body = json.loads(post_body)
 
-    # Parse the URL
+        # Parse the URL
         (resource, id) = self.parse_url(self.path)
 
-    # Delete a single animal from the list
+        success = False
+
         if resource == "animals":
-            update_animal(id, post_body)
+            success = update_animal(id, post_body)
+    # rest of the elif's
 
         elif resource == "locations":
             update_location(id, post_body)
@@ -176,7 +180,11 @@ class HandleRequests(BaseHTTPRequestHandler):
         elif resource == "customers":
             update_customer(id, post_body)
 
-    # Encode the new animal and send in response
+        if success:
+            self._set_headers(204)
+        else:
+            self._set_headers(404)
+
         self.wfile.write("".encode())
 
     def do_DELETE(self):

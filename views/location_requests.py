@@ -46,19 +46,27 @@ def delete_location(id):
         LOCATIONS.pop(location_index)
 
 def update_location(id, new_location):
-    """_summary_
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        db_cursor = conn.cursor()
 
-    Args:
-        id (_type_): _description_
-        new_location (_type_): _description_
-    """
-    # Iterate the ANIMALS list, but use enumerate() so that
-    # you can access the index value of each item.
-    for index, location in enumerate(LOCATIONS):
-        if location["id"] == id:
-            # Found the animal. Update the value.
-            LOCATIONS[index] = new_location
-            break
+        db_cursor.execute("""
+        UPDATE Animal
+            SET
+                name = ?,
+                address = ?
+        WHERE id = ?
+        """, (new_location['name'], new_location['address'], id, ))
+
+        # Were any rows affected?
+        # Did the client send an `id` that exists?
+        rows_affected = db_cursor.rowcount
+
+    if rows_affected == 0:
+        # Forces 404 response by main module
+        return False
+    else:
+        # Forces 204 response by main module
+        return True
 
 
 def get_all_locations():
@@ -92,7 +100,7 @@ def get_all_locations():
             # Note that the database fields are specified in
             # exact order of the parameters defined in the
             # Animal class above.
-            location = Location(row['id'], row['name'], row['address'], row['location_id'])
+            location = Location(row['id'], row['name'], row['address'])
 
             locations.append(location.__dict__)
 
@@ -120,7 +128,7 @@ def get_single_location(id):
         data = db_cursor.fetchone()
 
         # Create an animal instance from the current row
-        location = Location(data['id'], data['name'], data['address'], data['location_id'])
+        location = Location(data['id'], data['name'], data['address'])
 
         return location.__dict__
     

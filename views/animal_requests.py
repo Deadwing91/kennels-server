@@ -1,6 +1,8 @@
 import sqlite3
 import json
 from models import Animal
+from models import Location
+from models import Customer
 #from .location_requests import get_single_location
 #from .customer_requests import get_single_customer
 
@@ -9,24 +11,24 @@ ANIMALS = [
         "id": 1,
         "name": "Snickers",
         "breed": "Dog",
-        "locationId": 1,
-        "customerId": 4,
+        "location_id": 1,
+        "customer_id": 4,
         "status": "Admitted"
     },
     {
         "id": 2,
         "name": "Roman",
         "breed": "Dog",
-        "locationId": 1,
-        "customerId": 2,
+        "location_id": 1,
+        "customer_id": 2,
         "status": "Admitted"
     },
     {
         "id": 3,
         "name": "Blue",
         "breed": "Cat",
-        "locationId": 2,
-        "customerId": 1,
+        "location_id": 2,
+        "customer_id": 1,
         "status": "Admitted"
     }
 ]
@@ -65,19 +67,32 @@ def delete_animal(id):
         """, (id, ))
 
 def update_animal(id, new_animal):
-    """_summary_
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        db_cursor = conn.cursor()
 
-    Args:
-        id (_type_): _description_
-        new_animal (_type_): _description_
-    """
-    # Iterate the ANIMALS list, but use enumerate() so that
-    # you can access the index value of each item.
-    for index, animal in enumerate(ANIMALS):
-        if animal["id"] == id:
-            # Found the animal. Update the value.
-            ANIMALS[index] = new_animal
-            break
+        db_cursor.execute("""
+        UPDATE Animal
+            SET
+                name = ?,
+                breed = ?,
+                status = ?,
+                location_id = ?,
+                customer_id = ?
+        WHERE id = ?
+        """, (new_animal['name'], new_animal['breed'],
+              new_animal['status'], new_animal['location_id'],
+              new_animal['customer_id'], id, ))
+
+        # Were any rows affected?
+        # Did the client send an `id` that exists?
+        rows_affected = db_cursor.rowcount
+
+    if rows_affected == 0:
+        # Forces 404 response by main module
+        return False
+    else:
+        # Forces 204 response by main module
+        return True
 
 
 def get_all_animals():
@@ -96,8 +111,17 @@ def get_all_animals():
             a.breed,
             a.status,
             a.location_id,
-            a.customer_id
-        FROM animal a
+            a.customer_id,
+            l.name location_name,
+            l.address location_address,
+            c.name customer_name,
+            c.address customer_address,
+            c.email customer_email
+        FROM Animal a
+        JOIN Location l
+            ON l.id = a.location_id
+        JOIN Customer c
+            ON c.id = a.customer_id
         """)
 
         # Initialize an empty list to hold all animal representations
@@ -109,14 +133,22 @@ def get_all_animals():
         # Iterate list of data returned from database
         for row in dataset:
 
-            # Create an animal instance from the current row.
-            # Note that the database fields are specified in
-            # exact order of the parameters defined in the
-            # Animal class above.
-            animal = Animal(row['id'], row['name'], row['breed'],
-                            row['status'], row['location_id'],
-                            row['customer_id'])
+    # Create an animal instance from the current row
+            animal = Animal(row['id'], row['name'], row['breed'], row['status'],
+                            row['location_id'], row['customer_id'])
 
+            # Create a Location instance from the current row
+            location = Location(row['id'], row['location_name'], row['location_address'])
+
+            customer = Customer(row['id'], row['customer_name'], row['customer_address'], row['customer_email'])
+
+            del customer.password
+
+            # Add the dictionary representation of the location to the animal
+            animal.location = location.__dict__
+            animal.customer = customer.__dict__
+
+            # Add the dictionary representation of the animal to the list
             animals.append(animal.__dict__)
 
     return animals

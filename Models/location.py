@@ -2,8 +2,7 @@ class Location():
     """_summary_
     """
 
-    def __init__(self, id, name, address, location_id):
+    def __init__(self, id, name, address):
         self.id = id
-        self.id = name
+        self.name = name
         self.address = address
-        self.location_id = location_id
