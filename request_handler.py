@@ -72,6 +72,11 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = get_single_employee(id)
                 else:
                     response = get_all_employees()
+            elif resource == "locations":
+                if id is not None:
+                    response = get_single_location(id)
+                else:
+                    response = get_all_locations()
 
         else: # There is a ? in the path, run the query param functions
             (resource, query) = parsed
@@ -96,7 +101,7 @@ class HandleRequests(BaseHTTPRequestHandler):
     def do_POST(self):
         """_summary_
         """
-        self._set_headers(201)
+        
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
 
@@ -114,13 +119,13 @@ class HandleRequests(BaseHTTPRequestHandler):
         # the orange squiggle, you'll define the create_animal
         # function next.
         if resource == "animals":
-            if "name" in post_body and "breed" in post_body and "locationId" in post_body and "customerId" in post_body and "status" in post_body:
+            if "name" in post_body and "breed" in post_body and "location_id" in post_body and "customer_id" in post_body and "status" in post_body:
                 self._set_headers(201)
                 new_response = create_animal(post_body)
             else:
                 self._set_headers(400)
                 new_response = {
-                    "message": f'{"name is required" if "name" not in post_body else ""} {"breed is required" if "breed" not in post_body else ""} {"locationId is required" if "locationId" not in post_body else ""} {"customerId is required" if "customerId" not in post_body else ""} {"status is required" if "status" not in post_body else ""}'
+                    "message": f'{"name is required" if "name" not in post_body else ""} {"breed is required" if "breed" not in post_body else ""} {"location_id is required" if "location_id" not in post_body else ""} {"customer_id is required" if "customer_id" not in post_body else ""} {"status is required" if "status" not in post_body else ""}'
                         }
 
         elif resource == "locations":
@@ -134,13 +139,13 @@ class HandleRequests(BaseHTTPRequestHandler):
                         }
 
         elif resource == "employees":
-            if "name" in post_body and "address" in post_body and "locationId" in post_body:
+            if "name" in post_body and "address" in post_body and "location_id" in post_body:
                 self._set_headers(201)
                 new_response = create_employee(post_body)
             else:
                 self._set_headers(400)
                 new_response = {
-                    "message": f'{"name is required" if "name" not in post_body else ""} {"address is required" if "address" not in post_body else ""} {"locationId is required" if "locationId" not in post_body else ""}'
+                    "message": f'{"name is required" if "name" not in post_body else ""} {"address is required" if "address" not in post_body else ""} {"location_id is required" if "location_id" not in post_body else ""}'
                         }
 
         elif resource == "customers":

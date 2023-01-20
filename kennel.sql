@@ -136,3 +136,11 @@ SELECT
 FROM Employee a
 JOIN Location l
     on l.id = a.location_id
+
+SELECT * FROM Animal ORDER BY id DESC;
+
+ALTER TABLE Employee
+ADD animal_id integer
+
+update Employee
+SET animal_id = 1
